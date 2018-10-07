@@ -15,7 +15,14 @@ passport.use(
         },
         (accessToken, refreshToken, profile, done) => {
             //This arrow function is our oppurtunity to get profile from google
-            new User({ googleId: profile.id }).save();
+            User.findOne({ googleId: profile.id }).then(existingUser => {
+                if (existingUser) {
+                    //we already have the User in database, don't save it
+                } else {
+                    //we don't have the record in database, save it
+                    new User({ googleId: profile.id }).save();
+                }
+            });
         }
     )
 );
