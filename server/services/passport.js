@@ -5,6 +5,17 @@ const mongoose = require("mongoose");
 const User = mongoose.model("users");
 const keys = require("../config/keys");
 
+//function to generate the cookie for the imcoming user to our server
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id).then(user => {
+        done(null, user);
+    });
+});
+
 // we are making a new instance for authentication with google
 passport.use(
     new GoogleStrategy(
