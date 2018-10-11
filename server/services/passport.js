@@ -25,19 +25,17 @@ passport.use(
             callbackURL: "/auth/google/callback",
             proxy: true //for proxy issue at heroku server
         },
-        (accessToken, refreshToken, profile, done) => {
+        async (accessToken, refreshToken, profile, done) => {
             //This arrow function is our oppurtunity to get profile from google
-            User.findOne({ googleId: profile.id }).then(existingUser => {
-                if (existingUser) {
-                    //we already have the User in database, don't save it
-                    done(null, existingUser); //done(error object, returned user)
-                } else {
-                    //we don't have the record in database, save it
-                    new User({ googleId: profile.id })
-                        .save()
-                        .then(user => done(null, user));
-                }
-            });
+            const existingUser = await User.findOne({ googleId: profile.id });
+            if (existingUser) {
+                //we already have the User in database, don't save it
+                done(null, existingUser); //done(error object, returned user)
+            } else {
+                //we don't have the record in database, save it
+                const user = await new User({ googleId: profile.id }).save();
+                done(null, user);
+            }
         }
     )
 );
